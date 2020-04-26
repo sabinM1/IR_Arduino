@@ -115,6 +115,40 @@ void sendCode(int repeat) {
       Serial.println(codeValue, HEX);
     }
   } 
+  else if (codeType == SONY) {
+    irsend.sendSony(codeValue, codeLen);
+    Serial.print("Sent Sony ");
+    Serial.println(codeValue, HEX);
+  } 
+  else if (codeType == PANASONIC) {
+    irsend.sendPanasonic(codeValue, codeLen);
+    Serial.print("Sent Panasonic");
+    Serial.println(codeValue, HEX);
+  }
+  else if (codeType == JVC) {
+    irsend.sendJVC(codeValue, codeLen, false);
+    Serial.print("Sent JVC");
+    Serial.println(codeValue, HEX);
+  }
+  else if (codeType == RC5 || codeType == RC6) {
+    if (!repeat) {
+      // Flip the toggle bit for a new button press
+      toggle = 1 - toggle;
+    }
+    // Put the toggle bit into the code to send
+    codeValue = codeValue & ~(1 << (codeLen - 1));
+    codeValue = codeValue | (toggle << (codeLen - 1));
+    if (codeType == RC5) {
+      Serial.print("Sent RC5 ");
+      Serial.println(codeValue, HEX);
+      irsend.sendRC5(codeValue, codeLen);
+    } 
+    else {
+      irsend.sendRC6(codeValue, codeLen);
+      Serial.print("Sent RC6 ");
+      Serial.println(codeValue, HEX);
+    }
+  } 
   else if (codeType == UNKNOWN /* i.e. raw */) {
     // Assume 38 KHz
     irsend.sendRaw(rawCodes, codeLen, 38);
@@ -126,28 +160,24 @@ int lastButtonState;
 
 void loop() {
   // If button pressed, send the code.
-//  int buttonState = digitalRead(BUTTON_PIN);
-//  if (lastButtonState == HIGH && buttonState == LOW) {
-//    Serial.println("Released");
-//    irrecv.enableIRIn(); // Re-enable receiver
-//  }
-//
-//  if (buttonState) {
-//    Serial.println("Pressed, sending");
-//    digitalWrite(STATUS_PIN, HIGH);
-//    sendCode(lastButtonState == buttonState);
-//    digitalWrite(STATUS_PIN, LOW);
-//    delay(50); // Wait a bit between retransmissions
-//  } 
-//  else if (irrecv.decode(&results)) {
-//    digitalWrite(STATUS_PIN, HIGH);
-//    storeCode(&results);
-//    irrecv.resume(); // resume receiver
-//    digitalWrite(STATUS_PIN, LOW);
-//  }
-//  lastButtonState = buttonState;
+  int buttonState = digitalRead(BUTTON_PIN);
+  if (lastButtonState == HIGH && buttonState == LOW) {
+    Serial.println("Released");
+    irrecv.enableIRIn(); // Re-enable receiver
+  }
 
-  sendCode(
-  delay(1000);
-  
+  if (buttonState) {
+    Serial.println("Pressed, sending");
+    digitalWrite(STATUS_PIN, HIGH);
+    sendCode(lastButtonState == buttonState);
+    digitalWrite(STATUS_PIN, LOW);
+    delay(50); // Wait a bit between retransmissions
+  } 
+  else if (irrecv.decode(&results)) {
+    digitalWrite(STATUS_PIN, HIGH);
+    storeCode(&results);
+    irrecv.resume(); // resume receiver
+    digitalWrite(STATUS_PIN, LOW);
+  }
+  lastButtonState = buttonState;
 }
