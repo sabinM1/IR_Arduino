@@ -8,8 +8,9 @@ void setup() {
   Serial.begin(9600); // initialize Serial communication
   //while(!Serial) ;    // wait for serial port to connect.
 
-  // set the current time to 14:27:00, December 14th, 2015
-  setTime(20, 8, 00, 24, 4, 2020);
+  // set the current time to
+  //      hh, mm, ss, month, day, year
+  setTime(20,  8, 00,    24,   4, 2020);
 }
 
 void loop() {
@@ -27,9 +28,9 @@ void loop() {
   Serial.print(year());
   Serial.println();
 
-  if ((hour())==23 && (minute())==1 && ((second())==1 or (second())==2))
+  if ((hour())==23 && (minute())==1 && ((second())==1 or (second())==2)) //sometimes it doesn't register the first time
     irsend.sendNEC(0xFFB04F, 32);
-  if ((hour())==2 && (minute())==1 && ((second())==1 or (second())==2))
+  if ((hour())==2 && (minute())==1 && ((second())==1 or (second())==2))  //sometimes it doesn't register the first time
     irsend.sendNEC(0xFFF807, 32);
   delay(1000);
 }
