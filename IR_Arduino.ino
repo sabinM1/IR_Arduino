@@ -10,7 +10,7 @@ void setup() {
 
   // set the current time to
   //      hh, mm, ss, month, day, year
-  setTime(20,  8, 00,    24,   4, 2020);
+  setTime(23, 15, 00,     6,   2, 2020);
 }
 
 void loop() {
